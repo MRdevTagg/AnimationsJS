@@ -87,7 +87,7 @@ class Animation {
 
     this.anim_length =async () => {
       // Build the URL of the current image to check.
-      let url = `/${this.path}/${this.name}${this.frames}.${this.format}`
+      let url = `${this.path}/${this.name}${this.frames}.${this.format}`
       // Check if the length of the animation has been set.
       if (this.lengthSet !== true) {
         // Make a GET request to the current image URL using fetch().
