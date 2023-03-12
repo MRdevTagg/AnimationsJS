@@ -24,42 +24,31 @@ inter.next_anim = interruptor
 inter.animation = interruptor
 inter.transform.x  = 250
 inter.controls.enabled = false
-let iAn= 0
+
 
 const elements = [animatedSprite,s2,s3,s4,s5,s6,inter]
 
-let selected = inter;
+let selected = animatedSprite;
 let frameOption = ['FPS','MAX','MIN','STEP'];
 let I = 0;
 let frameProp = frameOption[I];
 let framePropInt = selected.frame.rate;
 
 
-
+Animations.forEach((anim, index, a) => {
+    anim.anim_length()
+})
 function update(){
     RAF(update)
 
-    if(!loaded){
-Animations.forEach((anim, index, a) => {
-  if (!anim.lengthSet) {
-    anim.anim_length()
 
-  }
-  else { 
-    if (index === a.length-1) {
-      anim.anim_length()
-          loaded = true }
-    }
-  
-})}
-else{
 elements.forEach((el)=>{
 
  el.animate();
 
 })
 
-if (loaded && !closed) {
+if (!closed) {
   $('.frameset').style.display='flex'
 
  frameProp = frameOption[I]
@@ -99,7 +88,7 @@ else{
   $('.frameset').style.display='none'
   
 }
-}
+
 
 }
 const btnstate = [$('.play'),$('.stop')]

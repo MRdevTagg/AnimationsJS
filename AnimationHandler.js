@@ -72,37 +72,47 @@ class Frame{
 }
 
 class Animation {
-  constructor({ anima,name, path, format, start, cycle }){
+  constructor({ anima, name, path, format, start, frames, cycle }) {
     this.anima = anima
     this.name = name || 'idle'
     this.path = path || 'img'
     this.format = format || 'png'
     this.start = start || 0
     this.cycle = cycle || 'loop-forward'
-    
+
     this.frames = 1
     this.images = []
-      
+
     this.lengthSet = false
-    this.img = new Image()
-    this.url;
-    this.anim_length = () =>{
-     this.url = `/${this.path}/${this.name}${this.frames}.${this.format}`
-     if(this.lengthSet !== true) {
-      this.img.src = this.url
-      this.img.onload = ()=>{
-      this.images.push(this.url)
-      this.frames +=1;
+
+    this.anim_length =async () => {
+      // Build the URL of the current image to check.
+      let url = `/${this.path}/${this.name}${this.frames}.${this.format}`
+      // Check if the length of the animation has been set.
+      if (this.lengthSet !== true) {
+        // Make a GET request to the current image URL using fetch().
+        fetch(url)
+          .then(response => {
+            // If the response status is "OK", add the URL to the images array,
+            // increase the frames counter by 1, and call anim_length() again
+            // to check if there are more images.
+            if (response.ok) {
+              this.images.push(url)
+              this.frames += 1
+              this.anim_length()
+            } else {
+              // If the response status is not "OK", it means there are no more
+              // images, so set lengthSet to true and set url to null.
+              this.lengthSet = true
+              
+            }
+          })
+          .catch(error => {
+            console.log(error)});
       }
-      this.img.onerror = ()=>{
-      this.lengthSet = true
-      this.img = new Image()
-      this.url = null
-      }
-     }
+      else return
     }
   }
-  
 }
 
 class Anima {
@@ -163,7 +173,7 @@ if(this.state === 'play'){
    if (this.direction === -1 && this.frame.current > this.frame.min || this.direction === 1 &&  this.frame.current < this.frame.max) {
         this.frame.current += this.direction
    }
-   //else {this.frame.current += 0}
+   else {this.frame.current += 0}
    
  }
  playModes(){
@@ -224,16 +234,12 @@ if(this.animation.lengthSet){
 
 draw(){
 
-
   this.animatorRunning()
-  let img = new Image()
-   img.src = this.animation.images[this.frame.current]
 
-  if (img.complete) {
-    
+
   this.element.src = this.animation.images[this.frame.current]
   this.frame.previous = this.frame.current  
-  }
+  
 
 }
 
@@ -319,9 +325,6 @@ controller(){
 animate(){
 
   //this is the Animation component method that will set the length of frames 
-  if(this.animation.lengthSet === false){
-    this.animation.anim_length()
-  }
 
   if(this.state === 'play'){
 
