@@ -4,8 +4,21 @@ let finished = false
 let closed = false
 
 
-const animatedSprite = new Anima({transform:new Transform({size:3.5,y: 190})});
-const s2 = new Anima({name:'sprite2',transform : new Transform({size:2.7, x : 20,y:195})})
+const animatedSprite = new Anima({
+  transform:new Transform({size:3.5,y: 190}),
+  animChange: animChangeHandler,
+  animRun : animRunHandler,
+  animControls : controller
+});
+animatedSprite.setAnimation(idle)
+const s2 = new Anima({
+  name:'sprite2',
+  transform : new Transform({size:2.7, x : 20,y:195}),
+  animChange: animChangeHandler,
+  animRun : animRunHandler,
+  animControls : controller
+})
+s2.setAnimation(flip)
 
 const interruptor = new Animation({
   name: 'interruptor',
@@ -15,8 +28,7 @@ const interruptor = new Animation({
 })
 const inter = new Anima({name:'inter',})
 const Animations = [idle, walk, flip, interruptor]
-inter.next_anim = interruptor
-inter.animation = interruptor
+inter.setAnimation(interruptor)
 inter.transform.x  = 250
 inter.controls.enabled = false
 
@@ -38,9 +50,7 @@ function update(){
 
 
 elements.forEach((el)=>{
-
  el.animate();
-
 })
 
 if (!closed) {
@@ -70,7 +80,7 @@ if (!closed) {
 
  ID('AnimMonitor').textContent = 
  ` NAME: ${selected.name}
- PREV: ${selected.prev_anim.name}
+ PREV: ${selected.prev_anim?.name}
  NEXT: ${selected.next_anim.name}
  STATE: ${selected.state}
  CYCLE: ${selected.cycle}

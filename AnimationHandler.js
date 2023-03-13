@@ -74,7 +74,7 @@ class Frame{
 class Animation {
   constructor({ anima, name, path, format, start, cycle }) {
     this.anima = anima
-    this.name = name || 'idle'
+    this.name = name || ''
     this.path = path || 'img'
     this.format = format || 'png'
     this.start = start || 0
@@ -91,6 +91,7 @@ class Animation {
       // Check if the length of the animation has been set.
       if (this.lengthSet !== true) {
         // Make a GET request to the current image URL using fetch().
+        
         fetch(url)
           .then(response => {
             // If the response status is "OK", add the URL to the images array,
@@ -108,15 +109,17 @@ class Animation {
             }
           })
           .catch(error => {
-            console.log(error)});
+            console.log('finish'),error});
       }
-      else return
+      else {
+        this.lengthSet = true;
+        return}
     }
   }
 }
 
 class Anima {
-  constructor({frame,animation,transform,collider,element,name,controls,cycle,state, mode}) {
+  constructor({frame,animation,transform,collider,name,controls,cycle,state, mode,animRun,animChange,animControls}) {
     this.name = name || 'sprite'
     this.element = ID(this.name) 
     this.frame = frame || new Frame({});
@@ -129,12 +132,15 @@ class Anima {
     this.prev_frame;
     this.mode = mode || 'source';
     this.counter = 0;
-    this.direction = 1;//frame
+    this.direction = 1;
     this.state_changed = true;
     
-    this.next_anim = idle;
-    this.prev_anim = idle;
+    this.next_anim;
+    this.prev_anim;
     
+    this.animRun = animRun || null ;
+    this.animChange = animChange || null ;
+    this.animControls = animControls || null ;
     this.anim_waiting =()=> this.animation !== this.next_anim;
     
     this.transition = (current,next)=>
@@ -241,85 +247,21 @@ draw(){
   this.frame.previous = this.frame.current  
 }
 // this method will handle changes during animation
-// this methos is usefull when you want to do something when animation reaches any frame
+// this method is usefull when you want to do something when animation reaches any frame
 animatorRunning(){
-  switch (this.animation.name) {
-    case 'flip':
-      if (this.frame.reachPoint(4)) {
-        this.transform.scale =-this.transform.scale
-      }
-      break;
-    case 'walk':
-      if (this.frame.reachPoint(3)) {
-         this.controls.move = true
-      }
-      if (this.frame.current > 5) {
-         this.frame.min = 4
-      }
-      break;
-    case 'idle':
-      this.controls.move = false
-      break;
-  }
+this.animRun && this.animRun(this)
 }
 /// this method will handle the situation where next animation is difretent from current animation
 animaOnChange(){
-  switch (true) {
-    case this.transition('walk','idle'):
-      if(this.frame.current < 6){
-      if(this.direction ===1){
-      this.loop('loop-reverse')}
-      this.frame.reachPoint(4) && (this.controls.move = false)
-      
-      if (this.frame.reachStart()) {
-        this.controls.move = false
-        this.switchAnimation()}
-      }
-      else{this.frame.reachStart() && this.switchAnimation()}
-      
-      break;
-    case this.transition('idle','walk'):
-        this.switchAnimation()
-      break;
-     case this.transition('idle','flip'):
-        this.switchAnimation()
-      break;
-      case this.transition('walk','flip'):
-        this.switchAnimation()
-      break;
-      case this.transition('flip','walk'):
-        this.frame.reachEnd() && this.switchAnimation()
-        break;
-        case this.transition('flip','idle'):
-        this.frame.reachEnd() && this.switchAnimation()
-        break;
-    default : this.switchAnimation()
-     
-     break;
-  }
+if (this.animChange) {
+  this.animChange(this)
+} else {
+  this.switchAnimation()
+}
 }
 /// this method will update the transform component baser on controls
 controller(){
-  if (this.controls.enabled) {
-    
-  
-  switch (true) {
-    case this.controls.move:
-     this.transform.move()
-      break;
-    case this.controls.left:
-      this.transform.scale >0 ?
-        this.setAnimation(flip) :
-        this.setAnimation(walk)
-      break;
-    case this.controls.right :
-      this.transform.scale <0 ?
-        this.setAnimation(flip) :
-        this.setAnimation(walk)
-      break;
-    
-  }
-}
+this.animControls && this.animControls(this)
 }
 
 animate(){
@@ -403,18 +345,94 @@ const anima = new Anima({name: 'myID'});
 |                         |
 | @@Method setAnimation() |
 |_________________________|
-You can create animations and switch between them on the run using setAnimation() method.
-An example could be :
+
+Now (to make this work) we must set the animation. otherwise we will have an error.
+this method will take only one argument wich is the animation we want to request
 
 anima.setAnimation(idle);
 
-This method will say to Anima component that a new animation is requested. Then it will ask to change the animation after some condition met, this condition can be setted by transition() function that returns a boolean. and it will be called inside  animaOnchange() method.(we'll see it next).. 
-    the default beahavior of this transition will be to change animation after the current animation reaches the last frame.
-    
-  @@Method animaOnChange()
-  
+This method will say to Anima component that a new animation is requested. 
+internally it will fire anim_waiting() method that returns true if current animation 
+is not equal to the animation requested
+Then it will ask to change the animation after some condition met and 
+this condition can be setted by animaOnchange() method(we'll see it next).. 
+
+ __________________________    
+|                          |
+| @@Method animaOnChange() |
+|__________________________|
+
+  the default behavior of this method will be to change animation right away, but we can customize this using the
+  animChange Anima's property. this property must be a function with a single argument to reference the 
+  anima we're working with
   this method comes to be the transition handler.
-  we must know about Frame component and Animation component to set it properly
+  To do so we can take advantage of transition method an write less code
+  the transition()method takes two string parameters, the first is the current animation name
+  and the second is the next animation name. this method will compare if the given names are in fact 
+  these animations names and then will return true. in other words it's like we were asking if 
+  some transition is taking place in a given moment. 
+  eg.:
+  function changeHandler(el)//el = reference to anima//{
+        if(el.transition('flip','walk')){
+        el.frame.reachEnd() && el.switchAnimation()
+        }else{
+          el.switchAnimation()
+        }
+  }
+
+  or a more complex one:
+  function changeHandler(el){
+  switch (true) {
+    case el.transition('walk','idle'):
+      if(el.frame.current < 6){
+      if(el.direction === 1){
+      el.loop('loop-reverse')}
+      el.frame.reachPoint(4) && (el.controls.move = false)
+      
+      if (el.frame.reachStart()) {
+        el.controls.move = false
+        el.switchAnimation()}
+      }
+      else{el.frame.reachStart() && el.switchAnimation()}
+      
+      break;
+      case el.transition('flip','walk'):
+        el.frame.reachEnd() && el.switchAnimation()
+        break;
+        case el.transition('flip','idle'):
+        el.frame.reachEnd() && el.switchAnimation()
+        break;
+    default : el.switchAnimation()
+     
+     break;
+  }
+}
+  this function, like the example above could be
+  an if/else conditions chaining or a switch statement
+  another important thing is that the default value in case none of this conditions met must be to
+  switch the animation for this we will use the switchAnimation() method
+
+  --- switchAnimation method is the actual method that internally changes the animation
+
+  now we're ready to pass the function to our anima's property
+  we have two ways:
+  the first, in the moment we crate the anima :
+
+  const anima = new Anima({name: 'myID',animChange:changeHandler});
+
+  or:
+
+  anima.animChange = changeHandler
+
+  ( note that we don't pass any parameter, 
+  that's because it will be passeed internally inside the animaOnChange()method
+  you must never pass a parameter )
+
+  In conclusion if we don't change the animChange property, the default bahavior 
+  will be change the animation right away
+  otherwise we can pass a function that handle all posibilities and changes between animations
+
+
 */
 
 const walk = new Animation({
@@ -432,5 +450,73 @@ const flip = new Animation({
   path: 'img/',
   format: 'png',
 })
-
+// this method will handle changes during animation
+// this method is usefull when you want to do something when animation reaches any frame
+function animRunHandler(anima){
+  switch (anima.animation.name) {
+    case 'flip':
+      if (anima.frame.reachPoint(4)) {
+        anima.transform.scale =-anima.transform.scale
+      }
+      break;
+    case 'walk':
+      if (anima.frame.reachPoint(3)) {
+         anima.controls.move = true
+      }
+      if (anima.frame.current > 5) {
+         anima.frame.min = 4
+      }
+      break;
+    case 'idle':
+      anima.controls.move = false
+      break;
+  }
+}
+/// this method will handle the situation where next animation is difretent from current animation
+function animChangeHandler(anima){
+  switch (true) {
+    case anima.transition('walk','idle'):
+      if(anima.frame.current < 6){
+      if(anima.direction === 1){
+      anima.loop('loop-reverse')}
+      anima.frame.reachPoint(4) && (anima.controls.move = false)
+      
+      if (anima.frame.reachStart()) {
+        anima.controls.move = false
+        anima.switchAnimation()}
+      }
+      else{anima.frame.reachStart() && anima.switchAnimation()}
+      
+      break;
+      case anima.transition('flip','walk'):
+        anima.frame.reachEnd() && anima.switchAnimation()
+        break;
+        case anima.transition('flip','idle'):
+        anima.frame.reachEnd() && anima.switchAnimation()
+        break;
+    default : anima.switchAnimation()
+     
+     break;
+  }
+}
+/// this method will update the transform component based on controls
+function controller(anima){
+  if (anima.controls.enabled) {
+  switch (true) {
+    case anima.controls.move:
+     anima.transform.move()
+      break;
+    case anima.controls.left:
+      anima.transform.scale >0 ?
+        anima.setAnimation(flip) :
+        anima.setAnimation(walk)
+      break;
+    case anima.controls.right :
+      anima.transform.scale <0 ?
+        anima.setAnimation(flip) :
+        anima.setAnimation(walk)
+      break; 
+  }
+}
+}
 
