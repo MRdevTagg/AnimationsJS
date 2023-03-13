@@ -8,10 +8,7 @@ const isClass = (sel, classname) => sel.classList.contains(classname);
 const addClass = (selector, classname) => selector.classList.add(classname);
 const removeClass = (selector = null, classname) => selector.classList.remove(classname)
   
-const changeClass = (el,add)=>{
- removeClass(el,'');
- addClass(el,add)
-}
+
 const rect = sel => sel.getBoundingClientRect();
 const nNull = el => el !== null && el !== undefined;
 const RAF = fun => window.requestAnimationFrame(fun);

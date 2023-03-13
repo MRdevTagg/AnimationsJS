@@ -2,9 +2,7 @@
 let loaded = false
 let finished = false
 let closed = false
-/*const c = ID('game')
-const ctx = c.getContext('2d')
-c.style.border = '1px solid #000'*/
+
 
 const animatedSprite = new Anima({transform:new Transform({size:3.5,y: 190})});
 const s2 = new Anima({name:'sprite2',transform : new Transform({size:2.7, x : 20,y:195})})
@@ -79,7 +77,7 @@ if (!closed) {
  FRAME: ${selected.frame.current}`
 
   $('#framerate p').innerHTML = `${framePropInt}`
-  $('.frame-options').innerHTML = `${frameProp} :`
+  $('.frame-options').innerHTML = `${frameProp} : (click for more)`
 }
 else{
   $('.frameset').style.display='none'
@@ -122,6 +120,7 @@ btncontrollers.forEach((btn)=>{
 
 EV(btn,start, (e) => {
   selected.loop(e.target.className)
+  selected?.play()
 })
 })
 EV(ID('idle'),start,()=>{selected.setAnimation(idle)})

@@ -56,7 +56,7 @@ class Transform {
 
 class Frame{
   constructor( current, min, max, step, rate, lap){
-      this.current = current || 0
+      this.current = current || 1
       this.previous = 0
       this.min = min || 0
       this.max = max || 1
@@ -143,9 +143,6 @@ class Anima {
     this.canDraw = () => this.frame.current <= this.animation.frames && this.frame.current >= this.animation.start && this.frame.current !== this.frame.previous && this.animation.lengthSet;
   }
   
-create(parent){
-  
-}
  play(){
    if(this.state === 'stop'){
      this.state = 'play'
@@ -158,17 +155,22 @@ if(this.state === 'play'){
   this.state_changed = true;
   }
  }
- loop(prop) {
+ /// this method will change the loop cycle of current animation
+ // we must pass in the argument a string with the loop cycle name
+ // posible values are : 'forward','reverse','loop-forward','loop-reverse' and 'loop-pingpong'
+ // the default will be 'forward'
+ loop(prop = 'forward') {
    this.cycle = prop;
    this.state_changed = true;
    this.frame.lap =0
  }
- 
+ /// this method will ask to change the animation
+ /// then will jump to animaOnChange to handle this change
  setAnimation(anim){
    this.next_anim = anim
  }
  
- 
+ // this method the frame step
  frameStep(){
    if (this.direction === -1 && this.frame.current > this.frame.min || this.direction === 1 &&  this.frame.current < this.frame.max) {
         this.frame.current += this.direction
@@ -176,6 +178,7 @@ if(this.state === 'play'){
    else {this.frame.current += 0}
    
  }
+ // this method handle the behavior of each loop cycles
  playModes(){
 
 if(this.animation.lengthSet){
@@ -231,18 +234,14 @@ if(this.animation.lengthSet){
   
   }
      
-
+// this method changes the image source based on current frame value
 draw(){
-
   this.animatorRunning()
-
-
   this.element.src = this.animation.images[this.frame.current]
   this.frame.previous = this.frame.current  
-  
-
 }
-
+// this method will handle changes during animation
+// this methos is usefull when you want to do something when animation reaches any frame
 animatorRunning(){
   switch (this.animation.name) {
     case 'flip':
@@ -263,6 +262,7 @@ animatorRunning(){
       break;
   }
 }
+/// this method will handle the situation where next animation is difretent from current animation
 animaOnChange(){
   switch (true) {
     case this.transition('walk','idle'):
@@ -298,7 +298,7 @@ animaOnChange(){
      break;
   }
 }
-
+/// this method will update the transform component baser on controls
 controller(){
   if (this.controls.enabled) {
     
@@ -323,36 +323,22 @@ controller(){
 }
 
 animate(){
-
-  //this is the Animation component method that will set the length of frames 
-
   if(this.state === 'play'){
-
-     this.counter+=1;
-      this.frame.max = this.animation.images.length-1
-
-          this.controller()
-
-
-  if(this.counter >= Math.round(60/this.frame.rate)){ 
-    this.counter = 0;
-    //this.playModes()
-
-    this.frameStep()
-    this.anim_waiting() && this.animaOnChange()
-    this.playModes()
-
+    this.counter+=1;
+    this.frame.max = this.animation.images.length-1
+    this.controller()
+    if(this.counter >= Math.round(60/this.frame.rate)){ 
+      this.counter = 0;
+      this.frameStep()
+      this.anim_waiting() && this.animaOnChange()
+      this.playModes()
     }
-  this.transform.update(this.element)
-
-this.canDraw() && this.draw()
-
+    this.transform.update(this.element)
+    this.canDraw() && this.draw()
     }
 }
 
- 
-
- switchAnimation(){
+switchAnimation(){
    if(this.anim_waiting()){
       this.frame.max = this.next_anim.images.length
       this.frame.min = this.next_anim.start
@@ -360,9 +346,8 @@ this.canDraw() && this.draw()
       this.loop(this.next_anim.cycle)
       this.frame.current = 0
       this.prev_anim = this.animation
-
-     this.animation = this.next_anim
-}
+      this.animation = this.next_anim
+    }
  }
  
  
@@ -405,11 +390,10 @@ With this done lets proced with the Anima cemponent.
 First we need to create the animated element and get it linked with a DOM node or canvas element(we'll see it later)
 ---- HTML (document node): ----
 Begin by adding the node in your html file (or create it via JavaScript), for example an img tag and then assign an id : 
-
 <img id="myID">
 
 -- STEP 4 -- 
-Now you are ready to create the Anima class component, to assign the element's id to the component just pass it as a string to the Anima 'name' property.
+Now you are ready to create the Anima class object, to assign the element's id to the component just pass it as a string to the Anima 'name' property.
 --- Notice that Anima's properties are inside an object --
 
 const anima = new Anima({name: 'myID'});
