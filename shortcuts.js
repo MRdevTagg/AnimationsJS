@@ -15,16 +15,16 @@ const changeClass = (el,add)=>{
 const rect = sel => sel.getBoundingClientRect();
 const nNull = el => el !== null && el !== undefined;
 const RAF = fun => window.requestAnimationFrame(fun);
-function inputUpdate(touch,mouse){
+function inputBinder(touch,mouse){
   navigator.userAgent.match(/Android/i) ||
   navigator.userAgent.match(/iPhone/i) ? 
     input = touch: input= mouse;
     return input
     }
  
-		let start = inputUpdate('touchstart','mousedown')
-		let move = inputUpdate('touchmove','mousemove')
-		let end = inputUpdate('touchend','click')
+		let start = inputBinder('touchstart','mousedown')
+		let move = inputBinder('touchmove','mousemove')
+		let end = inputBinder('touchend','click')
 		
 		
 const create = ({element='div',parent='div',clase=null,id = null,times = 1,content = null, source = null})=>{

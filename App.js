@@ -8,10 +8,7 @@ c.style.border = '1px solid #000'*/
 
 const animatedSprite = new Anima({transform:new Transform({size:3.5,y: 190})});
 const s2 = new Anima({name:'sprite2',transform : new Transform({size:2.7, x : 20,y:195})})
-const s3 = new Anima({name:'sprite3',transform : new Transform({size:2.5, x: 300,scale:-1})})
-const s4 = new Anima({name:'sprite4',transform : new Transform({size:2, x: 200, scale:-1,y:205})})
-const s5 = new Anima({name:'sprite5',transform : new Transform({size:1.7,y:210})})
-const s6 = new Anima({name:'sprite6',transform : new Transform({size:1.2,y:220,velocity:1.2})})
+
 const interruptor = new Animation({
   name: 'interruptor',
   path: 'img/',
@@ -26,7 +23,7 @@ inter.transform.x  = 250
 inter.controls.enabled = false
 
 
-const elements = [animatedSprite,s2,s3,s4,s5,s6,inter]
+const elements = [animatedSprite,s2,inter]
 
 let selected = animatedSprite;
 let frameOption = ['FPS','MAX','MIN','STEP'];
@@ -96,9 +93,9 @@ const btncontrollers = [ $('.forward'),$('.reverse'),$('.loop-forward'),$('.loop
 
 
 EV(window,'load',update)
-EV(ID('background'),'touchstart',()=>{    selected.element.style.outline = 'none'
+EV(ID('background'),start,()=>{    selected.element.style.outline = 'none'
 })
-EV(ID('inter'),'touchstart',()=>{
+EV(ID('inter'),start,()=>{
   inter.cycle === 'forward' ?
   inter.cycle = 'reverse' :
     inter.cycle = 'forward'
@@ -106,7 +103,7 @@ EV(ID('inter'),'touchstart',()=>{
 
 })
 elements.forEach((el)=>{ if(el.mode!=='canvas'){
-  EV(el.element,'touchstart',()=>{
+  EV(el.element,start,()=>{
     selected.element.style.outline = 'none'
     selected = el;
     el.element.style.outline = '1px solid #288ACFC2'
@@ -115,7 +112,7 @@ elements.forEach((el)=>{ if(el.mode!=='canvas'){
   else{}
 })
 btnstate.forEach((btn) => {
-EV(btn,'touchstart',(e)=>{
+EV(btn,start,(e)=>{
   e.target.className === 'stop' ?
     selected.stop():
     selected.play()
@@ -123,50 +120,50 @@ EV(btn,'touchstart',(e)=>{
 
 btncontrollers.forEach((btn)=>{
 
-EV(btn,'touchstart', (e) => {
+EV(btn,start, (e) => {
   selected.loop(e.target.className)
 })
 })
-EV(ID('idle'),'touchstart',()=>{selected.setAnimation(idle)})
-EV(ID('walk'),'touchstart',()=>{
+EV(ID('idle'),start,()=>{selected.setAnimation(idle)})
+EV(ID('walk'),start,()=>{
   selected.setAnimation(walk)
   selected.controls.move = true
 })
-EV(ID('walk'),'touchend',()=>{
+EV(ID('walk'),end,()=>{
   selected.setAnimation(idle)
 
 })
-EV(ID('left'),'touchstart',()=>{
+EV(ID('left'),start,()=>{
   selected.controls.right = false
   selected.controls.left = true
   
 
 })
-EV(ID('left'),'touchend',()=>{
+EV(ID('left'),end,()=>{
 selected.controls.left = false
   selected.setAnimation(idle)
 
 
 })
-EV(ID('right'),'touchstart',()=>{
+EV(ID('right'),start,()=>{
 selected.controls.left = false
 selected.controls.right = true
 })
-EV(ID('right'),'touchend',()=>{
+EV(ID('right'),end,()=>{
 selected.controls.right = false
 selected.setAnimation(idle)
 
 })
-EV(ID('flip'),'touchstart',()=>{
+EV(ID('flip'),start,()=>{
   selected.setAnimation(flip)})
 
-EV($('.frame-options'),'touchstart',()=>{
+EV($('.frame-options'),start,()=>{
   I < frameOption.length-1 ?
   I ++ : I = 0
   
 })
 
-EV($('.plusfrr'), 'touchstart', () => {
+EV($('.plusfrr'), start, () => {
   
   switch (frameProp) {
     case 'FPS':
@@ -191,7 +188,7 @@ EV($('.plusfrr'), 'touchstart', () => {
     break;
   }
 })
-EV($('.minusfrr'), 'touchstart', () => {
+EV($('.minusfrr'), start, () => {
   switch (frameProp) {
     case 'FPS':
     selected.frame.rate > 0?
@@ -216,7 +213,7 @@ EV($('.minusfrr'), 'touchstart', () => {
   }
 
 })
-EV($('.close'),'touchstart',()=>{
+EV($('.close'),start,()=>{
   closed === false?
   closed = true : closed = false
 })

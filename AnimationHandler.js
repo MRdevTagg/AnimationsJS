@@ -72,7 +72,7 @@ class Frame{
 }
 
 class Animation {
-  constructor({ anima, name, path, format, start, frames, cycle }) {
+  constructor({ anima, name, path, format, start, cycle }) {
     this.anima = anima
     this.name = name || 'idle'
     this.path = path || 'img'
