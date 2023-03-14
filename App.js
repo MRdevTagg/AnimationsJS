@@ -5,7 +5,7 @@ let closed = false
 
 
 const animatedSprite = new Anima({
-  transform:new Transform({size:3.5,y: 190}),
+  transform:new Transform({size:4.5,y: 190}),
   animChange: animChangeHandler,
   animRun : animRunHandler,
   animControls : controller
@@ -225,4 +225,38 @@ EV($('.minusfrr'), start, () => {
 EV($('.close'),start,()=>{
   closed === false?
   closed = true : closed = false
+})
+EV(window,'keydown',(e)=>{
+  if(selected){
+  switch (e.key) {
+    case 'ArrowRight':
+      selected.controls.left = false
+      selected.controls.right = true
+      break;
+    case 'ArrowLeft':
+      selected.controls.right = false
+      selected.controls.left = true
+      break;
+    default:
+      break;
+  }
+}
+})
+EV(window,'keyup',(e)=>{
+  if(selected){
+  switch (e.key) {
+    case 'ArrowRight':
+      selected.controls.right = false
+    
+
+      break;
+    case 'ArrowLeft':
+      selected.controls.left = false
+    
+     
+      break;
+    default:
+      break;
+  }
+}
 })

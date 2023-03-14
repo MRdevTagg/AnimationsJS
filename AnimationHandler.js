@@ -312,9 +312,10 @@ switchAnimation(){
  -- STEP 2 -- 
  -- CREATE & SET ANIMATION --
 
-    Now we are ready to create our first Animation...
+    Now we are ready to create our first Animation Component...
     Create an animation set is easy.
     Lets create two of them so we can switch from one to another:
+    
   const walk = new Animation({
   name: 'walk', //string must be equal to img name without the number that we put at the end earlier//
   path: 'img', // in case you have a more complex path just pass a string with usual slashes. for example : 'img/character/' //
@@ -372,6 +373,7 @@ this condition can be setted by animaOnchange() method(we'll see it next)..
   these animations names and then will return true. in other words it's like we were asking if 
   some transition is taking place in a given moment. 
   eg.:
+
   function changeHandler(el)//el = reference to anima//{
         if(el.transition('flip','walk')){
         el.frame.reachEnd() && el.switchAnimation()
@@ -381,6 +383,7 @@ this condition can be setted by animaOnchange() method(we'll see it next)..
   }
 
   or a more complex one:
+
   function changeHandler(el){
   switch (true) {
     case el.transition('walk','idle'):
@@ -442,12 +445,12 @@ const walk = new Animation({
 })
 const idle = new Animation({
   name: 'idle',
-  path: 'img/',
+  path: 'img',
   format: 'png',
 })
 const flip = new Animation({
   name: 'flip',
-  path: 'img/',
+  path: 'img',
   format: 'png',
 })
 // this method will handle changes during animation
@@ -516,6 +519,10 @@ function controller(anima){
         anima.setAnimation(flip) :
         anima.setAnimation(walk)
       break; 
+    case !anima.controls.right && !anima.controls.left :
+      anima.setAnimation(idle);
+      break;
+      default:anima.setAnimation(idle)
   }
 }
 }
