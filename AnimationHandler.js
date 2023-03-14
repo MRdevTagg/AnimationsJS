@@ -119,9 +119,10 @@ class Animation {
 }
 
 class Anima {
-  constructor({frame,animation,transform,collider,name,controls,cycle,state, mode,animRun,animChange,animControls}) {
-    this.name = name || 'sprite'
-    this.element = ID(this.name) 
+  constructor({animaList,frame,animation,transform,collider,name,controls,cycle,state, mode,animRun,animChange,animControls}) {
+    this.name = name || 'sprite';
+    this.animaList = animaList || null;
+    this.element = ID(this.name) ;
     this.frame = frame || new Frame({});
     this.animation = animation || new Animation({anima : this});
     this.transform = transform || new Transform({});
@@ -144,11 +145,16 @@ class Anima {
     this.anim_waiting =()=> this.animation !== this.next_anim;
     
     this.transition = (current,next)=>
-      this.animation.name === current && this.next_anim.name === next;
+    this.animation.name === current && this.next_anim.name === next;
       
     this.canDraw = () => this.frame.current <= this.animation.frames && this.frame.current >= this.animation.start && this.frame.current !== this.frame.previous && this.animation.lengthSet;
+    this.createAndPush()
   }
   
+  createAndPush(){
+    this.animaList &&
+    this.animaList.push(this)
+  }
  play(){
    if(this.state === 'stop'){
      this.state = 'play'
@@ -165,10 +171,13 @@ if(this.state === 'play'){
  // we must pass in the argument a string with the loop cycle name
  // posible values are : 'forward','reverse','loop-forward','loop-reverse' and 'loop-pingpong'
  // the default will be 'forward'
- loop(prop = 'forward') {
+ loop(prop = 'forward',after = true) {
    this.cycle = prop;
    this.state_changed = true;
    this.frame.lap =0
+   after == true ?
+   this.play():
+   this.stop()
  }
  /// this method will ask to change the animation
  /// then will jump to animaOnChange to handle this change
@@ -315,7 +324,7 @@ switchAnimation(){
     Now we are ready to create our first Animation Component...
     Create an animation set is easy.
     Lets create two of them so we can switch from one to another:
-    
+
   const walk = new Animation({
   name: 'walk', //string must be equal to img name without the number that we put at the end earlier//
   path: 'img', // in case you have a more complex path just pass a string with usual slashes. for example : 'img/character/' //
@@ -519,7 +528,7 @@ function controller(anima){
         anima.setAnimation(flip) :
         anima.setAnimation(walk)
       break; 
-    case !anima.controls.right && !anima.controls.left :
+    case (!anima.controls.right && !anima.controls.left) :
       anima.setAnimation(idle);
       break;
       default:anima.setAnimation(idle)

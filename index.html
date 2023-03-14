@@ -11,15 +11,17 @@
 
 </head>
 <body>
-    <div class="game" style="width: 320px;height: 320px;border: 1px solid #000; position:relative;overflow: hidden ;background:white">
+    <div class="game" style="width: 320px;height: 320px;
+    border: 1px solid #000; 
+    position:relative;overflow: hidden ;background:rgb(7, 68, 122)">
       <div id="background" style="width: inherit;height:inherit;">
         
       </div>
-      <img id="inter" style="position: absolute;filter:brightness(75%)" />
-     <img id="sprite" style="position: absolute;filter:brightness(75%)"/>
-     <img id="sprite2" style="position: absolute;filter:brightness(100%)"/>
+      <img id="inter" style="z-index:4;position: absolute;filter:brightness(75%)" />
+     <img id="sprite" style="z-index:4;position: absolute;filter:brightness(75%)"/>
+     <img id="sprite2" style="z-index:4;position: absolute;filter:brightness(100%)"/>
 
-
+      <div class="scenario"></div>
 
   </div>
   <div class="container">

@@ -2,9 +2,10 @@
 let loaded = false
 let finished = false
 let closed = false
-
+const elements = []
 
 const animatedSprite = new Anima({
+  animaList:elements,
   transform:new Transform({size:4.5,y: 190}),
   animChange: animChangeHandler,
   animRun : animRunHandler,
@@ -12,6 +13,7 @@ const animatedSprite = new Anima({
 });
 animatedSprite.setAnimation(idle)
 const s2 = new Anima({
+  animaList:elements,
   name:'sprite2',
   transform : new Transform({size:2.7, x : 20,y:195}),
   animChange: animChangeHandler,
@@ -21,19 +23,21 @@ const s2 = new Anima({
 s2.setAnimation(flip)
 
 const interruptor = new Animation({
+  
   name: 'interruptor',
   path: 'img/',
   format: 'png',
   cycle: 'forward'
 })
-const inter = new Anima({name:'inter',})
+  
+  const inter = new Anima({name:'inter',animaList:elements,})
 const Animations = [idle, walk, flip, interruptor]
 inter.setAnimation(interruptor)
 inter.transform.x  = 250
 inter.controls.enabled = false
+inter.frame.rate = 45
 
 
-const elements = [animatedSprite,s2,inter]
 
 let selected = animatedSprite;
 let frameOption = ['FPS','MAX','MIN','STEP'];
@@ -47,10 +51,8 @@ Animations.forEach((anim, index, a) => {
 })
 function update(){
     RAF(update)
-
-
-elements.forEach((el)=>{
- el.animate();
+    elements.forEach((el)=>{
+    el.animate();
 })
 
 if (!closed) {
@@ -105,9 +107,8 @@ EV(ID('background'),start,()=>{    selected.element.style.outline = 'none'
 })
 EV(ID('inter'),start,()=>{
   inter.cycle === 'forward' ?
-  inter.cycle = 'reverse' :
-    inter.cycle = 'forward'
-    inter.play()
+  inter.loop('reverse') :
+  inter.loop('forward')
 
 })
 elements.forEach((el)=>{ if(el.mode!=='canvas'){
@@ -150,7 +151,7 @@ EV(ID('left'),start,()=>{
 })
 EV(ID('left'),end,()=>{
 selected.controls.left = false
-  selected.setAnimation(idle)
+selected.controls.move = false
 
 
 })
@@ -160,7 +161,7 @@ selected.controls.right = true
 })
 EV(ID('right'),end,()=>{
 selected.controls.right = false
-selected.setAnimation(idle)
+selected.controls.move = false
 
 })
 EV(ID('flip'),start,()=>{
@@ -247,11 +248,13 @@ EV(window,'keyup',(e)=>{
   switch (e.key) {
     case 'ArrowRight':
       selected.controls.right = false
+selected.controls.move = false
     
 
       break;
     case 'ArrowLeft':
       selected.controls.left = false
+selected.controls.move = false
     
      
       break;
